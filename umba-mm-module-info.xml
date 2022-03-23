@@ -5,8 +5,15 @@
     -->
 
     <options>
-      <options-list type="cpp_includes">./encodings</options-list>
     </options>
+
+    <file>
+      <file-path>encoding.h</file-path>
+    </file>
+
+    <file>
+      <file-path>encoding.cpp</file-path>
+    </file>
 
     <file>
       <file-path>./compact_enc_det/compact_enc_det.cc</file-path>
