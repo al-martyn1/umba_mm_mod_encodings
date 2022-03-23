@@ -1,0 +1,27 @@
+<umba-mm-module-info>
+
+    <!--
+        msvc - _CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS
+    -->
+
+    <options>
+      <options-list type="cpp_includes">./encodings</options-list>
+    </options>
+
+    <file>
+      <file-path>./compact_enc_det/compact_enc_det.cc</file-path>
+    </file>
+
+    <file>
+      <file-path>./compact_enc_det/compact_enc_det_hint_code.cc</file-path>
+    </file>
+
+    <file>
+      <file-path>./util/encodings/encodings.cc</file-path>
+    </file>
+
+    <file>
+      <file-path>./util/languages/languages.cc</file-path>
+    </file>
+
+</umba-mm-module-info>
