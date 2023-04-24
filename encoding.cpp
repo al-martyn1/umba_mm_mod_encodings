@@ -1,5 +1,4 @@
 #include "encoding.h"
-#include <rdlc-core/case.h>
 #include <vector>
 
 #include "compact_enc_det/compact_enc_det.h"
@@ -206,6 +205,45 @@ std::string filterString(std::string s, bool strong)
 
     return res;
 }
+
+static bool    isLower( char ch )     { return (ch>='a' && ch<='z'); }
+static bool    isUpper( char ch )     { return (ch>='A' && ch<='Z'); }
+
+static bool    isLower( wchar_t ch )  { return (ch>=L'a' && ch<=L'z'); }
+static bool    isUpper( wchar_t ch )  { return (ch>=L'A' && ch<=L'Z'); }
+
+static char    toLower( char ch )     { return isUpper(ch) ? ch-'A'+'a' : ch; }
+static char    toUpper( char ch )     { return isLower(ch) ? ch-'a'+'A' : ch; }
+
+static wchar_t toLower( wchar_t ch )  { return isUpper(ch) ? ch-L'A'+L'a' : ch; }
+static wchar_t toUpper( wchar_t ch )  { return isLower(ch) ? ch-L'a'+L'A' : ch; }
+
+template< class CharT, class Traits = std::char_traits<CharT>, class Allocator = std::allocator<CharT> >
+static std::basic_string< CharT, Traits, Allocator >
+toLower( const std::basic_string< CharT, Traits, Allocator > &str )
+{
+    std::basic_string< CharT, Traits, Allocator > resStr; resStr.reserve(str.size());
+    for( auto it = str.begin(); it != str.end(); ++it )
+    {
+        resStr.append( 1, toLower(*it) );
+    }
+
+    return resStr;
+}
+
+template< class CharT, class Traits = std::char_traits<CharT>, class Allocator = std::allocator<CharT> >
+static std::basic_string< CharT, Traits, Allocator >
+toUpper( const std::basic_string< CharT, Traits, Allocator > &str )
+{
+    std::basic_string< CharT, Traits, Allocator > resStr; resStr.reserve(str.size());
+    for( auto it = str.begin(); it != str.end(); ++it )
+    {
+        resStr.append( 1, toUpper(*it) );
+    }
+
+    return resStr;
+}
+
 
 std::map< std::string, UINT>  EncodingsApi::nameToId;
 std::map< UINT, std::string>  EncodingsApi::idToName;
