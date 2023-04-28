@@ -350,6 +350,8 @@ std::wstring EncodingsApi::decode( const char   * data, size_t size, UINT cp )
         }
     }
 
+    //TODO: !!! А если продетектированная по BOM кодировка не соответствует заданной параметром?
+
     if (cp==cpid_UTF16 || cp==cpid_UTF16BE)
     {
         size /= 2;
@@ -364,7 +366,7 @@ std::wstring EncodingsApi::decode( const char   * data, size_t size, UINT cp )
         return res;
     }
 
-    DWORD flags = MB_PRECOMPOSED;
+    DWORD flags = MB_PRECOMPOSED; //TODO: !!! разобраться, не будет ли precomposed всякие ударения соединять с символом?
 
     if ( cp==50220 // iso-2022-jp
       || cp==50221 // csISO2022JP
@@ -443,6 +445,9 @@ UINT EncodingsApi::checkTheBom( const char* data, size_t size, size_t *pBomLen )
         return cpid_UTF8;
     }
 
+    if (pBomLen)
+        *pBomLen = 0;
+
     return 0;
 }
 
@@ -454,7 +459,7 @@ std::string  EncodingsApi::detect( const char   * data, size_t size, size_t &bom
     if (bomCp)
         return getCodePageName(bomCp);
 
-    if ((size & 1)==0)
+    if ((size & 1)==0) // длина - четное число - возможно, широкие символы
     {
         INT test = IS_TEXT_UNICODE_STATISTICS | IS_TEXT_UNICODE_CONTROLS | IS_TEXT_UNICODE_ASCII16;
         IsTextUnicode( (void*)data, (int)size, &test);

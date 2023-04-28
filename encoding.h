@@ -27,7 +27,7 @@ class EncodingsApi
 
 public:
 
-    static const UINT cpid_UTF16   = 1200;
+    static const UINT cpid_UTF16   = 1200; // LE
     static const UINT cpid_UTF16BE = 1201;
     static const UINT cpid_UTF8    = 65001;
 
@@ -52,11 +52,12 @@ public:
 
     bool getEncodingInfo( size_t encNumber, std::string &name, std::string &description);
 
+    //! return code page ID or 0, if no BOM found or BOM is invalid. Can return cpid_UTF16, cpid_UTF16BE or cpid_UTF8
+    UINT checkTheBom( const char* data, size_t size, size_t *pBomLen = 0 );
+
 private:
 
     UINT tryGetCodePageByName( const std::string name );
-
-    UINT checkTheBom( const char* data, size_t size, size_t *pBomLen = 0 );
 
     static std::map< std::string, UINT>  nameToId;
     static std::map< UINT, std::string>  idToName;
