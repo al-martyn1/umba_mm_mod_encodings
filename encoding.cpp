@@ -7,6 +7,11 @@
 #include "util/port.h"
 
 
+//----------------------------------------------------------------------------
+namespace encoding {
+
+// внутренние ID библиотеки детекта - util/encodings/encodings.pb.h
+
 WindowsEncodingInfo knownEncodings[] = 
 {
 { 37    , "IBM037"                    , "IBM EBCDIC (US-Canada)" },
@@ -317,11 +322,11 @@ bool EncodingsApi::isEqualEncodingNames( const std::string &enc1, const std::str
     return filterString(enc1, true)==filterString(enc2, true);
 }
 
-std::string  EncodingsApi::convert( const char   * data, size_t size, UINT cpSrc, UINT cpDst )
+std::string  EncodingsApi::convert( const char   * data, std::size_t size, UINT cpSrc, UINT cpDst )
 {
     if (cpSrc==cpDst)
     {
-        size_t bomSize = 0;
+        std::size_t bomSize = 0;
         UINT bomCp = checkTheBom( data, size, &bomSize );
         if (bomCp)
         {
@@ -336,11 +341,11 @@ std::string  EncodingsApi::convert( const char   * data, size_t size, UINT cpSrc
     return encode( wstr.data(), wstr.size(), cpDst );
 }
 
-std::wstring EncodingsApi::decode( const char   * data, size_t size, UINT cp )
+std::wstring EncodingsApi::decode( const char   * data, std::size_t size, UINT cp )
 {
     if (cp==cpid_UTF16 || cp==cpid_UTF16BE || cp==cpid_UTF8)
     {
-        size_t bomSize = 0;
+        std::size_t bomSize = 0;
         UINT bomCp = checkTheBom( data, size, &bomSize );
         if (bomCp)
         {
@@ -394,7 +399,7 @@ std::wstring EncodingsApi::decode( const char   * data, size_t size, UINT cp )
 
 }
 
-std::string  EncodingsApi::encode( const wchar_t* data, size_t size, UINT cp )
+std::string  EncodingsApi::encode( const wchar_t* data, std::size_t size, UINT cp )
 {
     DWORD flags = WC_NO_BEST_FIT_CHARS;
 
@@ -424,7 +429,7 @@ std::string  EncodingsApi::encode( const wchar_t* data, size_t size, UINT cp )
     return std::string( &buf[0], buf.size() );
 }
 
-UINT EncodingsApi::checkTheBom( const char* data, size_t size, size_t *pBomLen )
+UINT EncodingsApi::checkTheBom( const char* data, std::size_t size, std::size_t *pBomLen )
 {
     if (size>=2 && data[0]==0xFF && data[1]==0xFE)
     {
@@ -451,7 +456,7 @@ UINT EncodingsApi::checkTheBom( const char* data, size_t size, size_t *pBomLen )
     return 0;
 }
 
-std::string  EncodingsApi::detect( const char   * data, size_t size, size_t &bomSize, std::string httpHint, std::string metaHint )
+std::string  EncodingsApi::detect( const char   * data, std::size_t size, std::size_t &bomSize, std::string httpHint, std::string metaHint )
 {
     bomSize = 0;
 
@@ -509,9 +514,9 @@ std::string  EncodingsApi::detect( const char   * data, size_t size, size_t &bom
 
 }
 
-bool EncodingsApi::getEncodingInfo( size_t encNumber, std::string &name, std::string &description)
+bool EncodingsApi::getEncodingInfo( std::size_t encNumber, std::string &name, std::string &description)
 {
-    size_t totalKnownEncodings = sizeof(knownEncodings) / sizeof(knownEncodings[0]);
+    std::size_t totalKnownEncodings = sizeof(knownEncodings) / sizeof(knownEncodings[0]);
     if (encNumber>=totalKnownEncodings)
         return false;
     name        = knownEncodings[encNumber].codePageIdName;
@@ -524,6 +529,11 @@ EncodingsApi* getEncodingsApi()
     static EncodingsApi _;
     return &_;
 }
+
+
+//----------------------------------------------------------------------------
+
+} // namespace encoding
 
 
 

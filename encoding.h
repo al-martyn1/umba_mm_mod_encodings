@@ -1,12 +1,75 @@
 #pragma once
+#ifndef MARTY_ENCODING_API_INCLUDED
+#define MARTY_ENCODING_API_INCLUDED
 
-#include <winsock2.h>
-#include <windows.h>
+// Страж включения, нужен, в том числе, чтобы детектить подключенный API в других хидерах
+
+
+#include <cstddef>
+
+#if defined(_WIN32) || defined(WIN32)
+
+    #include <winsock2.h>
+    #include <windows.h>
+
+#else
+
+    #ifndef UINT
+        #define UINT  std::uint32_t;
+    #endif
+
+#endif
+
 #include <map>
 #include <string>
 
+//----------------------------------------------------------------------------
 
 
+
+//----------------------------------------------------------------------------
+namespace encoding {
+
+
+
+//----------------------------------------------------------------------------
+inline
+UINT getConsoleInputCodePage()
+{
+#if defined(_WIN32) || defined(WIN32)
+    return GetConsoleCP();
+#else
+    return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
+#endif
+}
+
+inline
+UINT getConsoleOutputCodePage()
+{
+#if defined(_WIN32) || defined(WIN32)
+    return GetConsoleOutputCP();
+#else
+    return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
+#endif
+}
+
+inline
+UINT getSystemCodePage()
+{
+#if defined(_WIN32) || defined(WIN32)
+    return GetACP();
+#else
+    return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
+#endif
+}
+
+//----------------------------------------------------------------------------
+
+
+
+
+
+//----------------------------------------------------------------------------
 struct WindowsEncodingInfo
 {
     UINT           codePage;
@@ -14,10 +77,12 @@ struct WindowsEncodingInfo
     const char*    codePageInfo;
 };
 
+//----------------------------------------------------------------------------
 
 
 
 
+//----------------------------------------------------------------------------
 class EncodingsApi;
 
 EncodingsApi* getEncodingsApi();
@@ -37,23 +102,39 @@ public:
     std::string getCodePageName( UINT id );
     std::string getCodePageInfo( UINT id );
 
-    std::wstring decode ( const char   * data, size_t size, UINT cp );
-    std::string  encode ( const wchar_t* data, size_t size, UINT cp );
-    std::string  detect ( const char   * data, size_t size, size_t &bomSize, std::string httpHint = std::string(), std::string metaHint = std::string() );
-    std::string  convert( const char   * data, size_t size, UINT cpSrc, UINT cpDst );
+    std::wstring decode ( const char   * data, std::size_t size, UINT cp );
+    std::string  encode ( const wchar_t* data, std::size_t size, UINT cp );
+    std::string  detect ( const char   * data, std::size_t size, std::size_t &bomSize, std::string httpHint=std::string(), std::string metaHint=std::string() );
+    std::string  convert( const char   * data, std::size_t size, UINT cpSrc, UINT cpDst );
 
     std::wstring decode( const std::string &str, UINT cp )                 { return decode( str.data(), str.size(), cp); }
     std::string  encode( const std::wstring &str, UINT cp )                { return encode( str.data(), str.size(), cp); }
-    std::string  detect( const std::string &str, size_t &bomSize, std::string httpHint = std::string(), std::string metaHint = std::string() )
-                 { return detect( str.data(), str.size(), bomSize, httpHint, metaHint ); }
+    std::string  detect( const std::string &str, std::size_t &bomSize, std::string httpHint=std::string(), std::string metaHint=std::string() )
+    {
+        return detect( str.data(), str.size(), bomSize, httpHint, metaHint );
+    }
+
+    std::string  detect( const std::string &str, std::size_t *pBomSize=0, std::string httpHint=std::string(), std::string metaHint=std::string() )
+    {
+        std::size_t bomSize;
+        auto res = detect( str.data(), str.size(), bomSize, httpHint, metaHint );
+        if (pBomSize)
+           *pBomSize = bomSize;
+        return res;
+    }
+
     std::string  convert( const std::string &str, UINT cpSrc, UINT cpDst ) { return convert( str.data(), str.size(), cpSrc, cpDst ); }
 
     bool isEqualEncodingNames( const std::string &enc1, const std::string &enc2 );
 
-    bool getEncodingInfo( size_t encNumber, std::string &name, std::string &description);
+    bool getEncodingInfo( std::size_t encNumber, std::string &name, std::string &description);
 
     //! return code page ID or 0, if no BOM found or BOM is invalid. Can return cpid_UTF16, cpid_UTF16BE or cpid_UTF8
-    UINT checkTheBom( const char* data, size_t size, size_t *pBomLen = 0 );
+    UINT checkTheBom( const char* data, std::size_t size, std::size_t *pBomLen = 0 );
+    UINT checkTheBom( const std::string &text, std::size_t *pBomLen = 0 )
+    {
+        return checkTheBom(text.data(), text.size(), pBomLen);
+    }
 
 private:
 
@@ -65,5 +146,246 @@ private:
 
     EncodingsApi();
 };
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+inline
+std::string toUtf8(const std::wstring &str)
+{
+    auto pApi = getEncodingsApi();
+    return pApi->encode(str, EncodingsApi::cpid_UTF8);
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toUtf8(const wchar_t *pStr)
+{
+    if (!pStr)
+        return std::string();
+
+    auto pApi = getEncodingsApi();
+    return pApi->encode(std::wstring(pStr), EncodingsApi::cpid_UTF8);
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toUtf8(wchar_t ch)
+{
+    auto wstr = std::wstring(1,ch);
+    return toUtf8(wstr);
+}
+
+//----------------------------------------------------------------------------
+//! Детектим кодировку и конвертим в UTF-8
+inline
+std::string toUtf8(const std::string &text)
+{
+    EncodingsApi* pApi = getEncodingsApi();
+
+    std::size_t bomSize = 0;
+    UINT bomCpId = pApi->checkTheBom(text, &bomSize);
+    if (bomCpId==EncodingsApi::cpid_UTF8)
+    {
+        return std::string(text, bomSize, text.size()-bomSize); // return without BOM
+    }
+
+    std::string detectedCpName = pApi->detect( text /* , bomSize */  );
+    if (detectedCpName.empty())
+        return text;
+
+    auto cpId = pApi->getCodePageByName(detectedCpName);
+    if (cpId==0)
+        return text;
+    
+    if (!bomSize)
+    {
+        return pApi->convert( text, cpId, EncodingsApi::cpid_UTF8 );
+    }
+    else
+    {
+        return pApi->convert( std::string(text, bomSize, text.size()-bomSize), cpId, EncodingsApi::cpid_UTF8 );
+    }
+}
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromUtf8(const std::string &str)
+{
+    auto pApi = getEncodingsApi();
+    return pApi->decode(str, EncodingsApi::cpid_UTF8);
+}
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromUtf8(const char *pStr)
+{
+    if (!pStr)
+        return std::wstring();
+
+    auto pApi = getEncodingsApi();
+    return pApi->decode(std::string(pStr), EncodingsApi::cpid_UTF8);
+}
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromUtf8(char ch)
+{
+    auto str = std::string(1,ch);
+    return fromUtf8(str);
+}
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromConsoleMultibyte(const std::string &str)
+{
+    EncodingsApi* pApi = getEncodingsApi();
+    return pApi->decode(str, getConsoleInputCodePage());
+}
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromConsoleMultibyte(const char *pStr)
+{
+    if (!pStr)
+        return std::wstring();
+
+    return fromConsoleMultibyte(std::string(pStr));
+}
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromConsoleMultibyte(char ch)
+{
+    return fromConsoleMultibyte(std::string(1, ch));
+}
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+inline
+std::string toConsoleMultibyte(const std::wstring &str)
+{
+    EncodingsApi* pApi = getEncodingsApi();
+    return pApi->encode(str, getConsoleOutputCodePage());
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toConsoleMultibyte(const wchar_t *pStr)
+{
+    if (!pStr)
+        return std::string();
+
+    return toConsoleMultibyte(std::wstring(pStr));
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toConsoleMultibyte(wchar_t ch)
+{
+    return toConsoleMultibyte(std::wstring(1, ch));
+}
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromSystemMultibyte(const std::string &str)
+{
+    EncodingsApi* pApi = getEncodingsApi();
+    return pApi->decode(str, getSystemCodePage());
+}
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromSystemMultibyte(const char *pStr)
+{
+    if (!pStr)
+        return std::wstring();
+
+    return fromSystemMultibyte(std::string(pStr));
+}
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromSystemMultibyte(char ch)
+{
+    return fromSystemMultibyte(std::string(1, ch));
+}
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+inline
+std::string toSystemMultibyte(const std::wstring &str)
+{
+    EncodingsApi* pApi = getEncodingsApi();
+    return pApi->encode(str, getSystemCodePage());
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toSystemMultibyte(const wchar_t *pStr)
+{
+    if (!pStr)
+        return std::string();
+
+    return toSystemMultibyte(std::wstring(pStr));
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toSystemMultibyte(wchar_t ch)
+{
+    return toSystemMultibyte(std::wstring(1, ch));
+}
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+
+} // namespace encoding
+
+
+
+//----------------------------------------------------------------------------
+
+#if defined(GLOBAL_ENCODINGS_API)
+
+    using encoding::EncodingsApi;
+
+#endif
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+
+#endif // MARTY_ENCODING_API_INCLUDED
 
 
