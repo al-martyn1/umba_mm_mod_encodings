@@ -170,6 +170,19 @@ private:
 
 
 //----------------------------------------------------------------------------
+struct BomStripper
+{
+    std::string operator()(std::string &text) const
+    {
+        return getEncodingsApi()->stripTheBom(text);
+    }
+};
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
 inline
 std::string toUtf8(const std::wstring &str)
 {
@@ -229,6 +242,19 @@ std::string toUtf8(const std::string &text)
 }
 
 //----------------------------------------------------------------------------
+struct ToUtf8
+{
+    std::string operator()(const std::wstring &str) const
+    {
+        return toUtf8(str);
+    }
+    std::string operator()(const std::string &str) const
+    {
+        return toUtf8(str);
+    }
+};
+
+//----------------------------------------------------------------------------
 
 
 
@@ -259,6 +285,16 @@ std::wstring fromUtf8(char ch)
     auto str = std::string(1,ch);
     return fromUtf8(str);
 }
+
+//----------------------------------------------------------------------------
+struct FromUtf8
+{
+    std::wstring operator()(const std::string &str) const
+    {
+        return fromUtf8(str);
+    }
+};
+
 
 //----------------------------------------------------------------------------
 
