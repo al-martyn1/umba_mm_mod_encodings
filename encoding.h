@@ -136,6 +136,23 @@ public:
         return checkTheBom(text.data(), text.size(), pBomLen);
     }
 
+    // returns BOM removed from text argument
+    std::string stripTheBom(std::string &text)
+    {
+        std::size_t bomSize = 0;
+        UINT cpId = checkTheBom(text, &bomSize);
+        if (!cpId)
+            std::string();
+        if (bomSize)
+        {
+            std::string bom = std::string(text, 0, bomSize);
+            text.erase(0,bomSize);
+            return bom;
+        }
+      
+        return std::string();
+    }
+
 private:
 
     UINT tryGetCodePageByName( const std::string name );
