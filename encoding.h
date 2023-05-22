@@ -5,8 +5,6 @@
 // Страж включения, нужен, в том числе, чтобы детектить подключенный API в других хидерах
 
 
-#include <cstddef>
-
 #if defined(_WIN32) || defined(WIN32)
 
     #include <winsock2.h>
@@ -20,6 +18,7 @@
 
 #endif
 
+#include <cstddef>
 #include <map>
 #include <string>
 
