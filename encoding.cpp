@@ -6,6 +6,14 @@
 #include "util/languages/languages.h"
 #include "util/port.h"
 
+#if defined(_MSC_VER)
+
+    #pragma warning(disable:5045) // warning C5045: Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+
+#endif
+
+
+
 
 //----------------------------------------------------------------------------
 namespace encoding {
@@ -211,17 +219,20 @@ std::string filterString(std::string s, bool strong)
     return res;
 }
 
+
+// warning C4505: 'encoding::toLower': unreferenced function with internal linkage has been removed
+
 static bool    isLower( char ch )     { return (ch>='a' && ch<='z'); }
 static bool    isUpper( char ch )     { return (ch>='A' && ch<='Z'); }
 
 static bool    isLower( wchar_t ch )  { return (ch>=L'a' && ch<=L'z'); }
 static bool    isUpper( wchar_t ch )  { return (ch>=L'A' && ch<=L'Z'); }
 
-static char    toLower( char ch )     { return isUpper(ch) ? ch-'A'+'a' : ch; }
-static char    toUpper( char ch )     { return isLower(ch) ? ch-'a'+'A' : ch; }
+static char    toLower( char ch )     { return (char)(isUpper(ch) ? ch-'A'+'a' : ch); }
+static char    toUpper( char ch )     { return (char)(isLower(ch) ? ch-'a'+'A' : ch); }
 
-static wchar_t toLower( wchar_t ch )  { return isUpper(ch) ? ch-L'A'+L'a' : ch; }
-static wchar_t toUpper( wchar_t ch )  { return isLower(ch) ? ch-L'a'+L'A' : ch; }
+static wchar_t toLower( wchar_t ch )  { return (wchar_t)(isUpper(ch) ? ch-L'A'+L'a' : ch); }
+static wchar_t toUpper( wchar_t ch )  { return (wchar_t)(isLower(ch) ? ch-L'a'+L'A' : ch); }
 
 template< class CharT, class Traits = std::char_traits<CharT>, class Allocator = std::allocator<CharT> >
 static std::basic_string< CharT, Traits, Allocator >
@@ -260,8 +271,9 @@ EncodingsApi::EncodingsApi()
     {
         if (ei.codePageIdName==0)
             break;
-        nameToId[ filterString(ei.codePageIdName, false) ] = ei.codePage;
-        nameToId[ filterString(ei.codePageIdName, false) ] = ei.codePage;
+        auto filteredCodePageIdName = filterString(ei.codePageIdName, false);
+        nameToId[filteredCodePageIdName] = ei.codePage;
+        nameToId[filteredCodePageIdName] = ei.codePage;
         idToName[ei.codePage] = ei.codePageIdName;
         idToInfo[ei.codePage] = ei.codePageInfo;
     }
@@ -365,7 +377,7 @@ std::wstring EncodingsApi::decode( const char   * data, std::size_t size, UINT c
         {
             wchar_t w1 = (wchar_t)(unsigned char)*data++;
             wchar_t w2 = (wchar_t)(unsigned char)*data++;
-            wchar_t w = cp==cpid_UTF16 ? ((w1) | (w2<<8)) : ((w1<<8) | (w2));
+            wchar_t w  = (wchar_t)(cp==cpid_UTF16 ? ((w1) | (w2<<8)) : ((w1<<8) | (w2)));
             res.append(1, w);
         }
         return res;
@@ -416,13 +428,13 @@ std::string  EncodingsApi::encode( const wchar_t* data, std::size_t size, UINT c
       )
         flags = 0;
 
-    int reqSize = WideCharToMultiByte( cp, flags, data, size, 0, 0, 0, 0 );
+    int reqSize = WideCharToMultiByte( cp, flags, data, (int)size, (LPSTR)0, 0, (LPCCH)0, (LPBOOL)0 );
     if (!reqSize)
        return std::string();
 
     std::vector<char> buf = std::vector<char>( (size_t)reqSize, 0 );
 
-    reqSize = WideCharToMultiByte( cp, flags, data, size, &buf[0], (int)buf.size(), 0, 0 );
+    reqSize = WideCharToMultiByte( cp, flags, data, (int)size, &buf[0], (int)buf.size(), (LPCCH)0, (LPBOOL)0 );
     if (!reqSize)
        return std::string();
 
@@ -493,7 +505,7 @@ std::string  EncodingsApi::detect( const char   * data, std::size_t size, std::s
     bool is_reliable;
 
     Encoding enc = 
-    CompactEncDet::DetectEncoding( data, size, nullptr,  // URL hint nul
+    CompactEncDet::DetectEncoding( data, (int)size, nullptr,  // URL hint nul
                                   httpHint.empty() ? (const char*)0 : httpHint.c_str(), //nullptr,                      // HTTP hint
                                   metaHint.empty() ? (const char*)0 : metaHint.c_str(), //nullptr,                      // Meta hint
                                   UNKNOWN_ENCODING,

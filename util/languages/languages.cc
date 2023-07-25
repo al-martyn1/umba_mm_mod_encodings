@@ -14,6 +14,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#if defined(_MSC_VER)
+    //#pragma warning(disable:4668) // 
+#endif
+#include "../../disable_warnings_begin.h"
+
 #include "util/languages/languages.h"
 
 #include "util/basictypes.h"

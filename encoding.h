@@ -67,6 +67,11 @@ UINT getSystemCodePage()
 
 
 
+//----------------------------------------------------------------------------
+#if defined(_MSC_VER)
+   #pragma warning(push)
+   #pragma warning(disable:4820) // warning C4820: 'encoding::WindowsEncodingInfo': '4' bytes padding added after data member 'encoding::WindowsEncodingInfo::codePage'
+#endif
 
 //----------------------------------------------------------------------------
 struct WindowsEncodingInfo
@@ -75,6 +80,11 @@ struct WindowsEncodingInfo
     const char*    codePageIdName;
     const char*    codePageInfo;
 };
+
+//----------------------------------------------------------------------------
+#if defined(_MSC_VER)
+   #pragma warning(pop)
+#endif
 
 //----------------------------------------------------------------------------
 

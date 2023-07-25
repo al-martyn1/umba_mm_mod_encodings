@@ -14,6 +14,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#if defined(_MSC_VER)
+    //#pragma warning(disable:4668) // 
+#endif
+#include "../disable_warnings_begin.h"
+
 #include "compact_enc_det/compact_enc_det_hint_code.h"
 
 #include <ctype.h>                      // for isalpha
@@ -167,3 +172,5 @@ string MakeChar8(const string& str) {
   }
   return res;
 }
+
+#include "../disable_warnings_end.h"

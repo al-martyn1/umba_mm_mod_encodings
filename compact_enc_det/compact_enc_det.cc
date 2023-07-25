@@ -14,6 +14,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#if defined(_MSC_VER)
+    //#pragma warning(disable:4668) // 
+#endif
+#include "../disable_warnings_begin.h"
+
+
 #include "compact_enc_det/compact_enc_det.h"
 
 #include <math.h>                       // for sqrt
@@ -5717,3 +5723,6 @@ Encoding CompactEncDet::TopEncodingOfCharsetHint(const char* name) {
 const char* CompactEncDet::Version(void) {
   return kVersion;
 }
+
+
+#include "../disable_warnings_end.h"
