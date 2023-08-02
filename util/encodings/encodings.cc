@@ -16,7 +16,10 @@
 
 #if defined(_MSC_VER)
     //#pragma warning(disable:4668) // 
+    #pragma warning(disable:4711) // warning C4711: function 'char const * __ptr64 __cdecl LanguageCode(enum Language)' selected for automatic inline expansion
+    #pragma warning(disable:4738) // warning C4738: storing 32-bit float result in memory, possible loss of performance
 #endif
+
 #include "../../disable_warnings_begin.h"
 
 #include "util/encodings/encodings.h"
