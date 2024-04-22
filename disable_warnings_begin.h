@@ -15,5 +15,12 @@
     #pragma warning(disable:5039) // warning C5039: 'qsort': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception
     #pragma warning(disable:5045) // warning C5045: Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
 
+#elif defined(__GNUC__)
+
+    #pragma GCC diagnostic push
+
+    #pragma GCC diagnostic ignored "-Wnarrowing"
+    #pragma GCC diagnostic ignored "-Wduplicated-branches"
+
 #endif
 

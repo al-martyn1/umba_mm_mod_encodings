@@ -28,20 +28,26 @@
 // not break any existing projects. The UNICODE enum may someday be changed
 // to something more specific and non-colliding, but this involves careful
 // testing of changes in many other projects.
-#undef UNICODE
+
+#if defined(UNICODE)
+    #undef UNICODE
+    #define ENCODINGS_REDEFINE_UNICODE
+#endif
+
+//#undef UNICODE
 
 // NOTE: The Encoding enum must always start at 0. This assumption has
 // been made and used.
 
-#ifndef SWIG
+//#ifndef SWIG
 
 #include "util/encodings/encodings.pb.h"
 
-#else
+//#else
 
 // TODO: Include a SWIG workaround header file.
 
-#endif
+//#endif
 
 const int kNumEncodings = NUM_ENCODINGS;
 
@@ -294,6 +300,11 @@ Encoding EncodingNameAliasToEncoding(const char *enc_name);
 // outside the destination set will be converted to HTML NCRs (&#NNN;)
 // if requested.
 Encoding PreferredWebOutputEncoding(Encoding enc);
+
+
+#if defined(ENCODINGS_REDEFINE_UNICODE)
+    #define UNICODE
+#endif
 
 
 #endif  // UTIL_ENCODINGS_ENCODINGS_H_

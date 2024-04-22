@@ -14,15 +14,21 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <ctype.h>                      // for isalpha
+#include <string.h>                     // for NULL, memchr, strlen, etc
+
+
 #if defined(_MSC_VER)
     //#pragma warning(disable:4668) // 
 #endif
+
 #include "../disable_warnings_begin.h"
 
-#include "compact_enc_det/compact_enc_det_hint_code.h"
+#if defined(UNICODE)
+    #undef UNICODE
+#endif
 
-#include <ctype.h>                      // for isalpha
-#include <string.h>                     // for NULL, memchr, strlen, etc
+#include "compact_enc_det/compact_enc_det_hint_code.h"
 
 #include "util/basictypes.h"            // for uint8, uint32
 #include "util/string_util.h"

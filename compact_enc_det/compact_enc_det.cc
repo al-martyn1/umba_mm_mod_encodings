@@ -30,11 +30,16 @@
 #include <memory>
 #include <string>                       // for string, operator==, etc
 
+#if defined(UNICODE)
+    #undef UNICODE
+#endif
+
 #include "compact_enc_det/compact_enc_det_hint_code.h"
 #include "util/string_util.h"
 #include "util/basictypes.h"
 #include "util/commandlineflags.h"
 #include "util/logging.h"
+
 
 using std::string;
 

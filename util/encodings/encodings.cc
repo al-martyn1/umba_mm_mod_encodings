@@ -32,6 +32,11 @@
 #include "util/string_util.h"
 #include "util/case_insensitive_hash.h"
 
+#if defined(UNICODE)
+    #undef UNICODE
+#endif
+
+
 struct EncodingInfo {
   // The standard name for this encoding.
   //

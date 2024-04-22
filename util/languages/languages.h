@@ -23,16 +23,16 @@
 // A hash-function for Language, hash<Language>, is defined in
 // i18n/languages/public/languages-hash.h
 
-#ifndef SWIG
+//#ifndef SWIG
 // Language enum defined in languages.proto
 // Also description on how to add languages.
 #include "util/languages/languages.pb.h"
 
-#else
+//#else
 
 // TODO: Include a header containing swig-compatible enum.
 
-#endif
+//#endif
 
 const int kNumLanguages = NUM_LANGUAGES;
 
