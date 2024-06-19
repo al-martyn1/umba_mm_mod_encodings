@@ -1,0 +1,17 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)\..\encoding.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)\..\compact_enc_det\compact_enc_det.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)\..\compact_enc_det\compact_enc_det_hint_code.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)\..\util\encodings\encodings.cc" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)\..\util\languages\languages.cc" />
+  </ItemGroup>
+
+</Project>
