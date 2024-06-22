@@ -443,19 +443,25 @@ std::string  EncodingsApi::encode( const wchar_t* data, std::size_t size, UINT c
 
 UINT EncodingsApi::checkTheBom( const char* data, std::size_t size, std::size_t *pBomLen )
 {
-    if (size>=2 && data[0]==0xFF && data[1]==0xFE)
+    constexpr const char ff = (char)(std::uint8_t)0xFFu;
+    constexpr const char fe = (char)(std::uint8_t)0xFEu;
+    constexpr const char ef = (char)(std::uint8_t)0xEFu;
+    constexpr const char bb = (char)(std::uint8_t)0xBBu;
+    constexpr const char bf = (char)(std::uint8_t)0xBFu;
+
+    if (size>=2 && data[0]==ff && data[1]==fe)
     {
         if (pBomLen)
             *pBomLen = 2;
         return cpid_UTF16;
     }
-    else if (size>=2 && data[0]==0xFE && data[1]==0xFF)
+    else if (size>=2 && data[0]==fe && data[1]==ff)
     {
         if (pBomLen)
             *pBomLen = 2;
         return cpid_UTF16BE;
     }
-    else if (size>=3 && data[0]==0xEF && data[1]==0xBB && data[2]==0xBF)
+    else if (size>=3 && data[0]==ef && data[1]==bb && data[2]==bf)
     {
         if (pBomLen)
             *pBomLen = 3;
