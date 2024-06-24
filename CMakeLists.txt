@@ -31,9 +31,8 @@ file(GLOB_RECURSE headers "${MODULE_ROOT}/*.h")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX "${PROJECT_NAME}/Headers" FILES ${headers})
 
 
-add_library(${PROJECT_NAME} ${sources})
+add_library(${PROJECT_NAME} ${sources} ${headers})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-#target_sources(${PROJECT_NAME} PRIVATE ${sources})
 target_include_directories(${PROJECT_NAME} PRIVATE ${MODULE_ROOT})
 
