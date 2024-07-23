@@ -20,7 +20,7 @@ namespace encoding {
 
 // внутренние ID библиотеки детекта - util/encodings/encodings.pb.h
 
-WindowsEncodingInfo knownEncodings[] = 
+WindowsEncodingInfo knownEncodings[] =
 {
 { 37    , "IBM037"                    , "IBM EBCDIC (US-Canada)" },
 { 37    , "CP037"                     , "IBM EBCDIC (US-Canada)" },
@@ -510,7 +510,7 @@ std::string  EncodingsApi::detect( const char   * data, std::size_t size, std::s
     int bytes_consumed;
     bool is_reliable;
 
-    Encoding enc = 
+    Encoding enc =
     CompactEncDet::DetectEncoding( data, (int)size, nullptr,  // URL hint nul
                                   httpHint.empty() ? (const char*)0 : httpHint.c_str(), //nullptr,                      // HTTP hint
                                   metaHint.empty() ? (const char*)0 : metaHint.c_str(), //nullptr,                      // Meta hint

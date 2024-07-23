@@ -158,7 +158,7 @@ public:
             text.erase(0,bomSize);
             return bom;
         }
-      
+
         return std::string();
     }
 
@@ -239,7 +239,7 @@ std::string toUtf8(const std::string &text)
     auto cpId = pApi->getCodePageByName(detectedCpName);
     if (cpId==0)
         return text;
-    
+
     if (!bomSize)
     {
         return pApi->convert( text, cpId, EncodingsApi::cpid_UTF8 );
