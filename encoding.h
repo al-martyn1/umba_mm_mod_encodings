@@ -32,10 +32,14 @@ namespace encoding {
 
 
 //----------------------------------------------------------------------------
+// https://learn.microsoft.com/en-us/windows/console/console-functions
+
+//----------------------------------------------------------------------------
 inline
 UINT getConsoleInputCodePage()
 {
 #if defined(_WIN32) || defined(WIN32)
+    // https://learn.microsoft.com/en-us/windows/console/getconsolecp
     return GetConsoleCP();
 #else
     return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
@@ -46,6 +50,7 @@ inline
 UINT getConsoleOutputCodePage()
 {
 #if defined(_WIN32) || defined(WIN32)
+    // https://learn.microsoft.com/en-us/windows/console/getconsoleoutputcp
     return GetConsoleOutputCP();
 #else
     return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
@@ -100,6 +105,9 @@ class EncodingsApi
 {
 
 public:
+
+    // EncodingsApi::codepage_type
+    using codepage_type = UINT;
 
     static const UINT cpid_UTF16   = 1200; // LE
     static const UINT cpid_UTF16BE = 1201;
@@ -311,7 +319,114 @@ struct FromUtf8
 
 //----------------------------------------------------------------------------
 inline
-std::wstring fromConsoleMultibyte(const std::string &str)
+std::wstring toUnicodeAuto(const std::wstring &str, EncodingsApi::codepage_type *pCodepageId=0)
+{
+    if (pCodepageId)
+       *pCodepageId = 0;
+    return str;
+}
+
+//----------------------------------------------------------------------------
+inline
+std::wstring toUnicodeAuto(const std::wstring::value_type *str, EncodingsApi::codepage_type *pCodepageId=0)
+{
+    if (pCodepageId)
+       *pCodepageId = 0;
+    return str ? std::wstring(str) : std::wstring();
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toUnicodeAuto(std::string str, EncodingsApi::codepage_type *pCodepageId=0)
+{
+    // !!! Надо бы тут разобраться с файлами, которые UTF-16
+    // static const UINT cpid_UTF16   = 1200; // LE
+    // static const UINT cpid_UTF16BE = 1201;
+
+    EncodingsApi* pEncApi = getEncodingsApi();
+
+    size_t bomSize = 0;
+    std::string detectRes = pEncApi->detect( str, bomSize );
+
+    if (bomSize)
+    {
+        str.erase(0,bomSize);
+    }
+
+    auto cpId = pEncApi->getCodePageByName(detectRes);
+
+    if (pCodepageId)
+       *pCodepageId = cpId;
+
+    return pEncApi->convert( str, cpId, EncodingsApi::cpid_UTF8 );
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toUnicodeAuto(const std::string::value_type *str, EncodingsApi::codepage_type *pCodepageId=0)
+{
+    if (pCodepageId)
+       *pCodepageId = 0;
+
+    return str ? toUnicodeAuto(std::string(str), pCodepageId) : std::string();
+}
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+inline
+std::string fromUnicodeToCodepage(const std::string &str, EncodingsApi::codepage_type toCp)
+{
+    if (toCp==0 || toCp==EncodingsApi::cpid_UTF8)
+        return str;
+
+    return getEncodingsApi()->convert( str, EncodingsApi::cpid_UTF8, toCp);
+}
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+inline
+std::wstring toUnicodeFromConsole(const std::wstring &str)
+{
+    return str;
+}
+
+//----------------------------------------------------------------------------
+inline
+std::wstring toUnicodeFromConsole(const std::wstring::value_type *str)
+{
+    return str ? std::wstring(str) : std::wstring();
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toUnicodeFromConsole(const std::string &str)
+{
+    EncodingsApi* pApi = getEncodingsApi();
+    //return pApi->decode(str, getConsoleInputCodePage());
+    //std::string  convert( const std::string &str, UINT cpSrc, UINT cpDst ) { return convert( str.data(), str.size(), cpSrc, cpDst ); }
+    return pApi->convert( str, getConsoleInputCodePage(), encoding::EncodingsApi::cpid_UTF8 );
+}
+
+//----------------------------------------------------------------------------
+inline
+std::string toUnicodeFromConsole(const std::string::value_type *str)
+{
+    return str ? toUnicodeFromConsole(std::string(str)) : std::string();
+}
+
+//----------------------------------------------------------------------------
+
+
+
+//----------------------------------------------------------------------------
+inline
+std::wstring fromConsoleMultibyte(const std::string &str) // С фига ли мультибайт?
 {
     EncodingsApi* pApi = getEncodingsApi();
     return pApi->decode(str, getConsoleInputCodePage());
@@ -319,7 +434,7 @@ std::wstring fromConsoleMultibyte(const std::string &str)
 
 //----------------------------------------------------------------------------
 inline
-std::wstring fromConsoleMultibyte(const char *pStr)
+std::wstring fromConsoleMultibyte(const char *pStr) // С фига ли мультибайт?
 {
     if (!pStr)
         return std::wstring();
@@ -329,7 +444,7 @@ std::wstring fromConsoleMultibyte(const char *pStr)
 
 //----------------------------------------------------------------------------
 inline
-std::wstring fromConsoleMultibyte(char ch)
+std::wstring fromConsoleMultibyte(char ch) // С фига ли мультибайт?
 {
     return fromConsoleMultibyte(std::string(1, ch));
 }
