@@ -4,6 +4,7 @@
 
 // Страж включения, нужен, в том числе, чтобы детектить подключенный API в других хидерах
 
+#include <cstdint>
 
 #if defined(_WIN32) || defined(WIN32)
 
@@ -13,7 +14,7 @@
 #else
 
     #ifndef UINT
-        #define UINT  std::uint32_t;
+        #define UINT  std::uint32_t
     #endif
 
 #endif
