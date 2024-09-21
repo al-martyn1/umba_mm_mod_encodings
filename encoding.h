@@ -36,37 +36,9 @@ namespace encoding {
 // https://learn.microsoft.com/en-us/windows/console/console-functions
 
 //----------------------------------------------------------------------------
-inline
-UINT getConsoleInputCodePage()
-{
-#if defined(_WIN32) || defined(WIN32)
-    // https://learn.microsoft.com/en-us/windows/console/getconsolecp
-    return GetConsoleCP();
-#else
-    return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
-#endif
-}
-
-inline
-UINT getConsoleOutputCodePage()
-{
-#if defined(_WIN32) || defined(WIN32)
-    // https://learn.microsoft.com/en-us/windows/console/getconsoleoutputcp
-    return GetConsoleOutputCP();
-#else
-    return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
-#endif
-}
-
-inline
-UINT getSystemCodePage()
-{
-#if defined(_WIN32) || defined(WIN32)
-    return GetACP();
-#else
-    return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
-#endif
-}
+UINT getConsoleInputCodePage();
+UINT getConsoleOutputCodePage();
+UINT getSystemCodePage();
 
 //----------------------------------------------------------------------------
 
@@ -540,6 +512,46 @@ std::string toSystemMultibyte(wchar_t ch)
 
 //----------------------------------------------------------------------------
 
+
+
+//----------------------------------------------------------------------------
+// https://learn.microsoft.com/en-us/windows/console/console-functions
+
+//----------------------------------------------------------------------------
+inline
+UINT getConsoleInputCodePage()
+{
+#if defined(_WIN32) || defined(WIN32)
+    // https://learn.microsoft.com/en-us/windows/console/getconsolecp
+    return GetConsoleCP();
+#else
+    return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
+#endif
+}
+
+inline
+UINT getConsoleOutputCodePage()
+{
+#if defined(_WIN32) || defined(WIN32)
+    // https://learn.microsoft.com/en-us/windows/console/getconsoleoutputcp
+    return GetConsoleOutputCP();
+#else
+    return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
+#endif
+}
+
+// Возвращает кодовую страницу неюникодного приложения (Ansi Code Page)
+inline
+UINT getSystemCodePage()
+{
+#if defined(_WIN32) || defined(WIN32)
+    return GetACP();
+#else
+    return EncodingsApi::cpid_UTF8; // В этих ваших линупсах и пр. обычно UTF-8
+#endif
+}
+
+//----------------------------------------------------------------------------
 
 
 
