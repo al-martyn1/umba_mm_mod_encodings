@@ -48,7 +48,7 @@ UINT getSystemCodePage();
 //----------------------------------------------------------------------------
 #if defined(_MSC_VER)
    #pragma warning(push)
-   #pragma warning(disable:4820) // warning C4820: 'encoding::WindowsEncodingInfo': '4' bytes padding added after data member 'encoding::WindowsEncodingInfo::codePage'
+   #pragma warning(disable:4820) // - warning C4820: 'encoding::WindowsEncodingInfo': '4' bytes padding added after data member 'encoding::WindowsEncodingInfo::codePage'
 #endif
 
 //----------------------------------------------------------------------------
@@ -313,6 +313,7 @@ inline
 std::string toUnicodeAuto(std::string str, EncodingsApi::codepage_type *pCodepageId=0)
 {
     // !!! Надо бы тут разобраться с файлами, которые UTF-16
+
     // static const UINT cpid_UTF16   = 1200; // LE
     // static const UINT cpid_UTF16BE = 1201;
 
