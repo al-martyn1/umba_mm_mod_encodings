@@ -6,4 +6,8 @@
 
     #pragma GCC diagnostic pop
 
+#elif defined(__clang__)
+
+    #pragma GCC diagnostic pop
+
 #endif

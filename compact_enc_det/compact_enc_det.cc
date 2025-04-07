@@ -299,7 +299,56 @@ typedef struct {
 // HintEntry, kMaxTldKey kMaxTldVector, etc.
 // =============================================================================
 
+
+#if defined(__GNUC__) || defined(__clang__)
+
+    #pragma GCC diagnostic push
+
+    //#if defined(__clang__)
+        //#pragma GCC diagnostic ignored "-Wno-c++11-narrowing"
+        #pragma GCC diagnostic ignored "-Wc++11-narrowing"
+    //#endif
+
+#endif
+
 #include "compact_enc_det/compact_enc_det_generated_tables.h"
+
+#if defined(__GNUC__) || defined(__clang__)
+
+    #pragma GCC diagnostic pop
+
+#endif
+
+
+
+/*
+#if defined(__GNUC__)
+
+
+    #pragma GCC diagnostic push
+
+    #pragma GCC diagnostic ignored "-Wnarrowing"
+    #pragma GCC diagnostic ignored "-Wduplicated-branches"
+
+    #if defined(__clang__)
+        #pragma GCC diagnostic "-Wno-c++11-narrowing"
+    #endif
+
+#if defined(_MSC_VER)
+
+    #pragma warning( pop )
+
+#elif defined(__GNUC__)
+
+    #pragma GCC diagnostic pop
+
+#endif
+*/
+
+
+
+
+
 
 
 #define F_ASCII F_Latin1    // "ASCII" is a misnomer, so this code uses "Latin1"

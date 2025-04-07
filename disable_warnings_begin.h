@@ -22,5 +22,21 @@
     #pragma GCC diagnostic ignored "-Wnarrowing"
     #pragma GCC diagnostic ignored "-Wduplicated-branches"
 
+    #if defined(__clang__)
+        #pragma GCC diagnostic ignored "-Wc++11-narrowing"
+    #endif
+
+    //#pragma GCC diagnostic "-Wno-narrowing"
+
+#elif defined(__clang__)
+
+    #pragma GCC diagnostic push
+
+    pragma GCC diagnostic ignored "-Wc++11-narrowing"
+
+    //__clang_major__, __clang_minor__ and __clang_patchlevel__
+    // -Wno-c++11-narrowing
+    // #define GCC_COMPILER (defined(__GNUC__) && !defined(__clang__))
+
 #endif
 
