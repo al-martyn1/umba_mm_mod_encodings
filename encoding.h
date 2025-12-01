@@ -135,7 +135,7 @@ public:
         std::size_t bomSize = 0;
         UINT cpId = checkTheBom(text, &bomSize);
         if (!cpId)
-            std::string();
+            return std::string();
         if (bomSize)
         {
             std::string bom = std::string(text, 0, bomSize);
